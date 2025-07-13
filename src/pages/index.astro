@@ -1,0 +1,47 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Sidebar from '../components/Sidebar.astro';
+import Gallery from '../components/Gallery.astro';
+
+// Import images from assets
+import featuredImage from '../assets/main/501760024_24047914748147228_8596347913612557712_n.jpg';
+import club1 from '../assets/main/club1.jpg';
+import club2 from '../assets/main/club2.jpg';
+import club4 from '../assets/main/club4.jpg';
+import club5 from '../assets/main/club5.jpg';
+
+// Create images array for Gallery component
+const homeImages = [
+	{ src: featuredImage, alt: 'Featured Photography' },
+	{ src: club1, alt: 'Club Photography 1' },
+	{ src: club2, alt: 'Club Photography 2' },
+	{ src: club4, alt: 'Club Photography 4' },
+	{ src: club5, alt: 'Club Photography 5' },
+];
+---
+
+<Layout title="Photographer Portfolio">
+	<div class="min-h-screen relative">
+		<!-- Mobile Header -->
+		<div class="lg:hidden fixed top-0 left-0 right-0 z-50 flex justify-between items-center p-4 bg-primary">
+			<!-- Logo on left -->
+			<img src="/src/assets/logo.png" alt="Photography Logo" class="w-16 h-auto" />
+			
+			<!-- Hamburger menu on right -->
+			<button 
+				id="menu-toggle"
+				class="p-2 text-primary"
+			>
+				<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+				</svg>
+			</button>
+		</div>
+
+		<Sidebar />
+		<Gallery 
+			images={homeImages}
+			description="Our notion of light may remain uncontaminated, but that can never guarantee of the moment where future-thinking. A reality absorbing the most imaginative idea of our culture."
+		/>
+	</div>
+</Layout>
