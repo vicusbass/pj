@@ -9,6 +9,8 @@ import club1 from '../assets/main/club1.jpg';
 import club2 from '../assets/main/club2.jpg';
 import club4 from '../assets/main/club4.jpg';
 import club5 from '../assets/main/club5.jpg';
+import logo from '../assets/logo.png';
+import { Image } from 'astro:assets';
 
 // Create images array for Gallery component
 const homeImages = [
@@ -25,7 +27,7 @@ const homeImages = [
 		<!-- Mobile Header -->
 		<div class="lg:hidden fixed top-0 left-0 right-0 z-50 flex justify-between items-center p-4 bg-primary">
 			<!-- Logo on left -->
-			<img src="/src/assets/logo.png" alt="Photography Logo" class="w-16 h-auto" />
+			<Image src={logo} alt="Photography Logo" class="w-16 h-auto" />
 			
 			<!-- Hamburger menu on right -->
 			<button 
