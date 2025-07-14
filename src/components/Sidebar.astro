@@ -1,13 +1,28 @@
 ---
-import { Image } from 'astro:assets';
-import logo from '../assets/logo.png';
+import Logo from '../assets/logo.svg';
 ---
+
+<!-- Mobile Header -->
+<div class="lg:hidden fixed top-0 left-0 right-0 z-50 flex justify-between items-center p-4 bg-primary">
+	<!-- Logo on left -->
+	<Logo width={64} height={64} fill="currentColor" />
+	
+	<!-- Hamburger menu on right -->
+	<button 
+		id="menu-toggle"
+		class="p-2 text-primary"
+	>
+		<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+		</svg>
+	</button>
+</div>
 
 <aside class="hidden lg:flex lg:fixed lg:left-0 lg:top-0 lg:h-full lg:w-80 bg-primary lg:flex-col lg:p-12 lg:z-10">
 	<div class="flex flex-col items-start h-full" style="padding-top: calc(15vh); padding-bottom: calc(15vh);">
 		<!-- Logo - aligned with gallery image start -->
 		<div class="mb-8">
-			<Image src={logo} alt="Photography Logo" class="w-20 h-auto" />
+			<Logo width={64} height={64} fill="currentColor" />
 		</div>
 
 		<!-- Typography Section -->
@@ -73,7 +88,7 @@ import logo from '../assets/logo.png';
 >
 	<div class="flex flex-col p-8 h-full">
 		<div class="mb-12">
-			<Image src={logo} alt="Photography Logo" class="w-20 h-auto" />
+			<Logo width={64} height={64} fill="currentColor" />
 		</div>
 		
 		<nav class="space-y-6 text-lg">
