@@ -1,5 +1,6 @@
 ---
 import Logo from '../assets/logo.svg';
+import {Icon} from 'astro-icon/components'
 ---
 
 <!-- Mobile Header -->
@@ -18,64 +19,63 @@ import Logo from '../assets/logo.svg';
 	</button>
 </div>
 
-<aside class="hidden lg:flex lg:fixed lg:left-0 lg:top-0 lg:h-full lg:w-80 bg-primary lg:flex-col lg:p-12 lg:z-10">
-	<div class="flex flex-col items-start h-full" style="padding-top: calc(15vh); padding-bottom: calc(15vh);">
-		<!-- Logo - aligned with gallery image start -->
-		<div class="mb-8">
-			<Logo width={64} height={64} fill="currentColor" />
-		</div>
-
-		<!-- Typography Section -->
-		<div class="mb-8">
-			<h2 class="text-sm font-semibold text-primary mb-4 tracking-wide uppercase">PJ ARTS</h2>
-			<div class="text-sm text-secondary space-y-1">
-				<div class="text-muted italic">Clients friendly</div>
+<aside class="hidden lg:flex lg:fixed lg:left-0 lg:top-0 lg:h-full lg:w-64 bg-primary lg:flex-col lg:p-12 lg:pt-[15vh] lg:pb-[15vh] lg:z-10">
+	<div class="flex flex-col h-full justify-between">
+		<!-- Top Section - Logo aligned with gallery image start -->
+		<div class="flex flex-col items-start">
+			<div>
+				<Logo width={64} height={64} fill="currentColor" />
 			</div>
-		</div>
-		
-		<!-- Navigation Menu -->
-		<nav class="space-y-3 text-sm flex-1">
-			<a href="/" class="block text-primary hover:text-accent transition-colors cursor-pointer">
-				Home
-			</a>
-			<a href="/weddings" class="block text-primary hover:text-accent transition-colors cursor-pointer">
-				Weddings
-			</a>
-			<a href="/clubbing" class="block text-primary hover:text-accent transition-colors cursor-pointer">
-				Clubbing
-			</a>
-			<a href="/baptism" class="block text-primary hover:text-accent transition-colors cursor-pointer">
-				Baptism
-			</a>
-			<a href="/arts" class="block text-primary hover:text-accent transition-colors cursor-pointer">
-				Arts
-			</a>
-			<a href="/about" class="block text-primary hover:text-accent transition-colors cursor-pointer">
-				About
-			</a>
-			<a href="/contact" class="block text-primary hover:text-accent transition-colors cursor-pointer">
-				Contact
-			</a>
-		</nav>
 
-		<!-- Footer - aligned with gallery image end -->
-		<div class="text-xs text-muted">
-			<div class="mb-4">
+			<!-- Typography Section -->
+			<div class="mb-8">
+				<h2 class="text-lg font-bold text-primary mb-4 tracking-wide uppercase">PJ ARTS</h2>
+				<div class="text-sm text-secondary space-y-1">
+					<div class="text-muted italic">Your Guy</div>
+				</div>
+			</div>
+			
+			<!-- Navigation Menu -->
+			<nav class="space-y-3 text-sm">
+				<a href="/" class="block text-primary hover:text-accent transition-colors cursor-pointer">
+					Home
+				</a>
+				<a href="/weddings" class="block text-primary hover:text-accent transition-colors cursor-pointer">
+					Weddings
+				</a>
+				<a href="/clubbing" class="block text-primary hover:text-accent transition-colors cursor-pointer">
+					Clubbing
+				</a>
+				<a href="/baptism" class="block text-primary hover:text-accent transition-colors cursor-pointer">
+					Baptism
+				</a>
+				<a href="/arts" class="block text-primary hover:text-accent transition-colors cursor-pointer">
+					Arts
+				</a>
+				<a href="/about" class="block text-primary hover:text-accent transition-colors cursor-pointer">
+					About
+				</a>
+				<a href="/contact" class="block text-primary hover:text-accent transition-colors cursor-pointer">
+					Contact
+				</a>
+			</nav>
+		</div>
+
+		<!-- Bottom Section - Footer aligned with gallery image end -->
+		<div class="text-xs">
+			<div class="mb-4 text-muted">
 				All these images and projections of<br>
 				myself belonged in 2025
 			</div>
 			
 			<!-- Social Icons -->
-			<div class="flex space-x-3">
-				<div class="w-6 h-6 bg-secondary rounded-full flex items-center justify-center">
-					<span class="text-primary text-xs">f</span>
-				</div>
-				<div class="w-6 h-6 bg-secondary rounded-full flex items-center justify-center">
-					<span class="text-primary text-xs">i</span>
-				</div>
-				<div class="w-6 h-6 bg-secondary rounded-full flex items-center justify-center">
-					<span class="text-primary text-xs">t</span>
-				</div>
+			<div class="flex space-x-4">
+				<a href="https://www.facebook.com/pauljph" target="_blank" class="hover:text-accent transition-colors">
+					<Icon name="mdi:facebook" size={32} />
+				</a>
+				<a href="https://www.instagram.com/paulj_arts" target="_blank" class="hover:text-accent transition-colors">
+					<Icon name="mdi:instagram" size={32} />
+				</a>
 			</div>
 		</div>
 	</div>
@@ -87,11 +87,19 @@ import Logo from '../assets/logo.svg';
 	class="lg:hidden fixed inset-0 bg-primary z-50 transform -translate-x-full transition-transform duration-300 ease-in-out"
 >
 	<div class="flex flex-col p-8 h-full">
-		<div class="mb-12">
+		<div class="flex justify-between items-center mb-12">
 			<Logo width={64} height={64} fill="currentColor" />
+			<button 
+				id="menu-close"
+				class="p-2 text-primary"
+			>
+				<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+				</svg>
+			</button>
 		</div>
 		
-		<nav class="space-y-6 text-lg">
+		<nav class="space-y-6 text-lg flex-1">
 			<a href="/" class="block text-primary hover:text-accent transition-colors">
 				Home
 			</a>
@@ -114,5 +122,21 @@ import Logo from '../assets/logo.svg';
 				Contact
 			</a>
 		</nav>
+		
+		<!-- Mobile Social Icons -->
+		<div class="mt-8">
+			<div class="text-xs text-muted mb-4">
+				All these images and projections of<br>
+				myself belonged in 2025
+			</div>
+			<div class="flex space-x-4">
+				<a href="https://www.facebook.com/pauljph" target="_blank" class="hover:text-accent transition-colors">
+					<Icon name="mdi:facebook" size={32} />
+				</a>
+				<a href="https://www.instagram.com/paulj_arts" target="_blank" class="hover:text-accent transition-colors">
+					<Icon name="mdi:instagram" size={32} />
+				</a>
+			</div>
+		</div>
 	</div>
 </div>
