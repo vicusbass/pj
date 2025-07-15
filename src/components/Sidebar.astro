@@ -6,8 +6,9 @@ import {Icon} from 'astro-icon/components'
 <!-- Mobile Header -->
 <div class="lg:hidden fixed top-0 left-0 right-0 z-50 flex justify-between items-center p-4 bg-primary">
 	<!-- Logo on left -->
-	<Logo width={64} height={64} fill="currentColor" />
-	
+	 <a href="/">
+		<Logo width={64} height={64} fill="currentColor" />
+	</a>
 	<!-- Hamburger menu on right -->
 	<button 
 		id="menu-toggle"
@@ -24,7 +25,9 @@ import {Icon} from 'astro-icon/components'
 		<!-- Top Section - Logo aligned with gallery image start -->
 		<div class="flex flex-col items-start">
 			<div>
-				<Logo width={64} height={64} fill="currentColor" />
+				<a href="/">
+					<Logo width={64} height={64} fill="currentColor" />
+				</a>
 			</div>
 
 			<!-- Typography Section -->

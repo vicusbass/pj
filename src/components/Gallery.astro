@@ -6,14 +6,33 @@ export interface Props {
 		src: ImageMetadata;
 		alt: string;
 	}[];
-	title?: string;
 	description?: string;
 }
 
-const { images, title, description } = Astro.props;
+const { images, description } = Astro.props;
 ---
 
-<div class="gallery-container lg:ml-64 h-screen lg:pt-[15vh] lg:pb-[15vh] flex items-start">
+<div class="gallery-container lg:ml-64 h-screen lg:pt-[15vh] lg:pb-[15vh] flex items-start relative">
+	<!-- Left Arrow (hidden on mobile) -->
+	<button 
+		class="gallery-arrow gallery-arrow-left hidden lg:flex absolute left-4 top-1/2 transform -translate-y-1/2 z-10 opacity-0 transition-opacity duration-300 hover:opacity-80"
+		aria-label="Scroll left"
+	>
+		<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+			<path d="m15 18-6-6 6-6"/>
+		</svg>
+	</button>
+
+	<!-- Right Arrow (hidden on mobile) -->
+	<button 
+		class="gallery-arrow gallery-arrow-right hidden lg:flex absolute right-4 top-1/2 transform -translate-y-1/2 z-10 opacity-50 transition-opacity duration-300 hover:opacity-80"
+		aria-label="Scroll right"
+	>
+		<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+			<path d="m9 18 6-6-6-6"/>
+		</svg>
+	</button>
+
 	<!-- Horizontal Scrollable Container for both text and images -->
 	<div class="gallery-scroll overflow-x-auto w-full h-full flex items-center" style="scrollbar-width: none; -ms-overflow-style: none; scroll-behavior: smooth;">
 		<div class="flex w-max h-full items-center">
@@ -24,6 +43,13 @@ const { images, title, description } = Astro.props;
 						<h1 class="text-sm mb-4 leading-relaxed">
 							{description}
 						</h1>
+						<!-- Scroll suggestion arrow (visible on mobile only) -->
+						<div class="scroll-suggestion lg:hidden flex items-center justify-start opacity-60">
+							<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="animate-pulse">
+								<path d="m9 18 6-6-6-6"/>
+							</svg>
+							<span class="text-xs ml-2">Scroll to see more</span>
+						</div>
 					</div>
 				)}
 			</div>
@@ -66,4 +92,77 @@ const { images, title, description } = Astro.props;
 	.gallery-scroll {
 		-webkit-overflow-scrolling: touch;
 	}
+
+	.gallery-arrow {
+		background: rgba(0, 0, 0, 0.3);
+		backdrop-filter: blur(8px);
+		border: none;
+		border-radius: 50%;
+		width: 48px;
+		height: 48px;
+		align-items: center;
+		justify-content: center;
+		color: white;
+		cursor: pointer;
+		transition: all 0.3s ease;
+	}
+
+	.gallery-arrow:hover {
+		background: rgba(0, 0, 0, 0.5);
+		transform: translateY(-50%) scale(1.1);
+	}
 </style>
+
+<script>
+	document.addEventListener('DOMContentLoaded', function() {
+		const galleryContainer = document.querySelector('.gallery-container');
+		const galleryScroll = document.querySelector('.gallery-scroll');
+		const leftArrow = document.querySelector('.gallery-arrow-left');
+		const rightArrow = document.querySelector('.gallery-arrow-right');
+
+		if (!galleryScroll || !leftArrow || !rightArrow) return;
+
+		// All code using galleryScroll, leftArrow, rightArrow is now safely inside this block
+
+		// Horizontal scrolling with mouse wheel
+		galleryScroll.addEventListener('wheel', (e: WheelEvent) => {
+			e.preventDefault();
+			const scrollAmount = e.deltaY * 6;
+			galleryScroll.scrollLeft += scrollAmount;
+		});
+
+		// Arrow click handlers
+		const scrollAmount = 500;
+
+		rightArrow.addEventListener('click', () => {
+			galleryScroll.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+		});
+
+		leftArrow.addEventListener('click', () => {
+			galleryScroll.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+		});
+
+		// Update arrow visibility based on scroll position
+		const updateArrows = () => {
+			const scrollLeft = galleryScroll.scrollLeft;
+			const maxScroll = galleryScroll.scrollWidth - galleryScroll.clientWidth;
+
+			// Show/hide left arrow
+			if (scrollLeft > 10) {
+				leftArrow.style.opacity = '0.5';
+			} else {
+				leftArrow.style.opacity = '0';
+			}
+
+			// Show/hide right arrow
+			if (scrollLeft >= maxScroll - 10) {
+				rightArrow.style.opacity = '0';
+			} else {
+				rightArrow.style.opacity = '0.5';
+			}
+		};
+
+		galleryScroll.addEventListener('scroll', updateArrows);
+		updateArrows();
+	});
+</script>
