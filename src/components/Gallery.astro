@@ -40,7 +40,7 @@ const { images, description } = Astro.props;
 			<div class="flex-shrink-0 w-[35vw] lg:w-[25vw] px-4 lg:px-12 lg:pr-8 flex flex-col justify-center">
 				{description && (
 					<div class="mb-8">
-						<h1 class="text-sm mb-4 leading-relaxed">
+						<h1 class="text-sm lg:text-lg mb-4 leading-relaxed">
 							{description}
 						</h1>
 						<!-- Scroll suggestion arrow (visible on mobile only) -->
@@ -115,7 +115,6 @@ const { images, description } = Astro.props;
 
 <script>
 	document.addEventListener('DOMContentLoaded', function() {
-		const galleryContainer = document.querySelector('.gallery-container');
 		const galleryScroll = document.querySelector('.gallery-scroll');
 		const leftArrow = document.querySelector('.gallery-arrow-left');
 		const rightArrow = document.querySelector('.gallery-arrow-right');
@@ -124,11 +123,18 @@ const { images, description } = Astro.props;
 
 		// All code using galleryScroll, leftArrow, rightArrow is now safely inside this block
 
-		// Horizontal scrolling with mouse wheel
+		// Improved horizontal scrolling for mouse wheel and trackpad
 		galleryScroll.addEventListener('wheel', (e: WheelEvent) => {
-			e.preventDefault();
-			const scrollAmount = e.deltaY * 6;
-			galleryScroll.scrollLeft += scrollAmount;
+			// If horizontal scroll (deltaX), use it directly (trackpad)
+			// If not, use vertical scroll (deltaY) mapped to horizontal (mouse wheel)
+			if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+				// Let the browser handle native trackpad horizontal scrolling for smoothness
+				return;
+			} else {
+				// Mouse wheel vertical scroll mapped to horizontal
+				e.preventDefault();
+				galleryScroll.scrollLeft += e.deltaY * 6;
+			}
 		});
 
 		// Arrow click handlers
