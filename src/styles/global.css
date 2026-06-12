@@ -1,72 +1,521 @@
 @import "tailwindcss";
 
-@theme {
-  /* Colors */
-  --color-primary: 255 255 255; /* white */
-  --color-secondary: 0 0 0; /* black */
-  --color-accent: 239 68 68; /* red-500 */
-  
-  /* Background Colors */
-  --color-background: 255 255 255; /* white */
-  --color-surface: 249 250 251; /* gray-50 */
-  
-  /* Text Colors */
-  --color-text-primary: 0 0 0; /* black */
-  --color-text-secondary: 107 114 128; /* gray-500 */
-  --color-text-muted: 156 163 175; /* gray-400 */
-  
-  /* Border Colors */
-  --color-border: 229 231 235; /* gray-200 */
-  --color-border-light: 243 244 246; /* gray-100 */
-  
-  /* Fonts */
-  --font-sans: 'Geist Variable', sans-serif;
+/* =====================================================================
+   PJ ARTS — design system
+   Ported from the "PJ Arts.dc.html" design canvas (three.js + GSAP).
+   Dark is the default theme; [data-theme="light"] overrides the tokens.
+   ===================================================================== */
+
+:root {
+	--bg: #09090b;
+	--bg2: #101012;
+	--fg: #f1efe9;
+	--muted: #86868f;
+	--line: rgba(255, 255, 255, 0.1);
+	--card: #0c0c0e;
+	--accent: #ef4444;
+
+	--grain-opacity: 0.55;
+	--sidebar-w: 264px;
+
+	--font-sans: "Geist Variable", system-ui, sans-serif;
+	--font-mono: "Geist Mono Variable", ui-monospace, monospace;
 }
 
-@layer base {
-  body {
-    margin: 0;
-    padding: 0;
-    font-family: theme(--font-sans);
-    background-color: rgb(theme(--color-background));
-    color: rgb(theme(--color-text-primary));
-  }
+html[data-theme="light"] {
+	--bg: #fbfbf9;
+	--bg2: #f1f1ee;
+	--fg: #0c0c0d;
+	--muted: #74747c;
+	--line: rgba(0, 0, 0, 0.12);
+	--card: #eceae5;
+	--grain-opacity: 0.4;
 }
 
-@layer utilities {
-  .bg-primary {
-    background-color: rgb(theme(--color-primary));
-  }
-  
-  .bg-secondary {
-    background-color: rgb(theme(--color-secondary));
-  }
-  
-  .bg-surface {
-    background-color: rgb(theme(--color-surface));
-  }
-  
-  .text-primary {
-    color: rgb(theme(--color-text-primary));
-  }
-  
-  .text-secondary {
-    color: rgb(theme(--color-text-secondary));
-  }
-  
-  .text-muted {
-    color: rgb(theme(--color-text-muted));
-  }
-  
-  .text-accent {
-    color: rgb(theme(--color-accent));
-  }
-  
-  .border-custom {
-    border-color: rgb(theme(--color-border));
-  }
-  
-  .border-light {
-    border-color: rgb(theme(--color-border-light));
-  }
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+
+html {
+	background: var(--bg);
+}
+
+body {
+	min-height: 100vh;
+	background: var(--bg);
+	color: var(--fg);
+	font-family: var(--font-sans);
+	-webkit-font-smoothing: antialiased;
+	overflow-x: hidden;
+	transition:
+		background-color 0.6s ease,
+		color 0.6s ease;
+}
+
+a {
+	color: inherit;
+}
+
+.font-mono {
+	font-family: var(--font-mono);
+}
+
+/* scrollbar */
+::-webkit-scrollbar {
+	width: 9px;
+	height: 0;
+}
+::-webkit-scrollbar-thumb {
+	background: rgba(128, 128, 128, 0.35);
+	border-radius: 9px;
+}
+.pj-hidescroll {
+	scrollbar-width: none;
+	-ms-overflow-style: none;
+}
+.pj-hidescroll::-webkit-scrollbar {
+	display: none;
+}
+
+/* keyframes */
+@keyframes pj-cue {
+	0%,
+	100% {
+		transform: translateX(0);
+		opacity: 0.4;
+	}
+	50% {
+		transform: translateX(6px);
+		opacity: 1;
+	}
+}
+@keyframes pj-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+/* ---------- intro reveal ---------- */
+.pj-intro {
+	position: fixed;
+	inset: 0;
+	z-index: 1000;
+	background: var(--bg);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 30px;
+}
+.pj-intro__word {
+	font-family: var(--font-mono);
+	font-size: 11px;
+	letter-spacing: 0.5em;
+	text-transform: uppercase;
+	color: var(--muted);
+	opacity: 0;
+	padding-left: 0.5em;
+}
+
+/* ---------- three.js grain overlay ---------- */
+.pj-grain {
+	position: fixed;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 75;
+	pointer-events: none;
+	mix-blend-mode: soft-light;
+	opacity: var(--grain-opacity);
+}
+
+/* ---------- mobile top bar ---------- */
+.pj-topbar {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 58px;
+	z-index: 120;
+	display: none;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0 18px;
+	background: color-mix(in srgb, var(--bg) 88%, transparent);
+	backdrop-filter: blur(12px);
+	border-bottom: 1px solid var(--line);
+}
+.pj-topbar__brand {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	text-decoration: none;
+	color: var(--fg);
+}
+.pj-topbar__brand span {
+	font-family: var(--font-mono);
+	font-size: 11px;
+	letter-spacing: 0.22em;
+	text-transform: uppercase;
+}
+.pj-burger {
+	display: flex;
+	flex-direction: column;
+	gap: 5px;
+	background: none;
+	border: none;
+	padding: 10px;
+	cursor: pointer;
+	margin: -2px;
+}
+.pj-burger span {
+	width: 24px;
+	height: 2px;
+	background: var(--fg);
+	display: block;
+	border-radius: 2px;
+}
+
+/* ---------- drawer backdrop ---------- */
+.pj-backdrop {
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.55);
+	backdrop-filter: blur(4px);
+	z-index: 138;
+	display: none;
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 0.4s ease;
+}
+.pj-backdrop[data-open="true"] {
+	opacity: 1;
+	pointer-events: auto;
+}
+
+/* ---------- controls (theme) ---------- */
+.pj-controls {
+	position: fixed;
+	top: 24px;
+	right: 28px;
+	z-index: 130;
+	display: flex;
+	align-items: center;
+	gap: 14px;
+}
+.pj-btn {
+	font-family: var(--font-mono);
+	font-size: 10px;
+	letter-spacing: 0.16em;
+	text-transform: uppercase;
+	color: var(--fg);
+	background: color-mix(in srgb, var(--bg) 70%, transparent);
+	border: 1px solid var(--line);
+	border-radius: 999px;
+	padding: 9px 16px;
+	cursor: pointer;
+	backdrop-filter: blur(10px);
+	transition:
+		border-color 0.3s ease,
+		color 0.3s ease;
+}
+.pj-btn:hover {
+	border-color: color-mix(in srgb, var(--fg) 38%, transparent);
+}
+
+/* ---------- sidebar ---------- */
+.pj-sidebar {
+	position: fixed;
+	left: 0;
+	top: 0;
+	height: 100vh;
+	width: var(--sidebar-w);
+	z-index: 110;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	padding: 6vh 40px;
+	background: linear-gradient(90deg, var(--bg) 65%, transparent);
+}
+.pj-sidebar__name {
+	font-size: 15px;
+	font-weight: 600;
+	letter-spacing: 0.24em;
+	text-transform: uppercase;
+}
+.pj-sidebar__tag {
+	font-size: 12px;
+	font-style: italic;
+	color: var(--muted);
+	margin-top: 5px;
+}
+.pj-nav {
+	margin-top: 36px;
+	display: flex;
+	flex-direction: column;
+	gap: 11px;
+	font-size: 13px;
+}
+.pj-nav a {
+	display: flex;
+	align-items: center;
+	gap: 9px;
+	width: fit-content;
+	color: var(--muted);
+	text-decoration: none;
+	cursor: pointer;
+	transition: color 0.3s ease;
+}
+.pj-nav a:hover {
+	color: var(--fg);
+}
+.pj-nav a.is-active {
+	color: var(--fg);
+	font-weight: 500;
+}
+.pj-nav a.is-active::before {
+	content: "";
+	width: 14px;
+	height: 1px;
+	background: var(--accent);
+	flex: 0 0 auto;
+}
+.pj-nav a.is-inert {
+	cursor: default;
+}
+.pj-sidebar__foot {
+	font-size: 11px;
+	color: var(--muted);
+	line-height: 1.7;
+}
+.pj-social {
+	display: flex;
+	gap: 14px;
+}
+.pj-social a {
+	color: var(--muted);
+	transition: color 0.3s ease;
+	display: inline-flex;
+}
+.pj-social a:hover {
+	color: var(--accent);
+}
+.pj-drawer-ctl {
+	display: none;
+	margin-top: 30px;
+	flex-direction: column;
+	gap: 14px;
+	align-items: flex-start;
+}
+
+/* ---------- main ---------- */
+.pj-main {
+	margin-left: var(--sidebar-w);
+	position: relative;
+	z-index: 2;
+}
+
+/* ---------- home · filmstrip ---------- */
+.pj-film-sec {
+	height: 100vh;
+	display: flex;
+	align-items: center;
+	position: relative;
+}
+.pj-film-scroll {
+	width: 100%;
+	height: 100%;
+	overflow-x: auto;
+	overflow-y: hidden;
+	display: flex;
+	align-items: center;
+	scroll-behavior: smooth;
+}
+.pj-film-inner {
+	display: flex;
+	align-items: center;
+	height: 100%;
+	padding: 0 64px 0 8px;
+	gap: 34px;
+	width: max-content;
+}
+.pj-film-intro {
+	flex: 0 0 auto;
+	width: 30vw;
+	max-width: 430px;
+	padding-right: 24px;
+}
+.pj-kicker {
+	font-family: var(--font-mono);
+	font-size: 10px;
+	letter-spacing: 0.3em;
+	text-transform: uppercase;
+	color: var(--accent);
+	margin-bottom: 20px;
+}
+.pj-tagline {
+	font-size: clamp(18px, 1.7vw, 26px);
+	line-height: 1.5;
+	font-weight: 400;
+	text-wrap: pretty;
+	margin: 0;
+}
+.pj-film-title {
+	margin: 0;
+	font-size: clamp(44px, 6vw, 80px);
+	line-height: 0.9;
+	font-weight: 600;
+	letter-spacing: -0.02em;
+}
+.pj-film-sub {
+	max-width: 30rem;
+	margin: 22px 0 0;
+	font-size: clamp(15px, 1.4vw, 18px);
+	line-height: 1.55;
+	color: var(--muted);
+	text-wrap: pretty;
+}
+.pj-scrollcue {
+	margin-top: 32px;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	font-family: var(--font-mono);
+	font-size: 11px;
+	letter-spacing: 0.18em;
+	text-transform: uppercase;
+	color: var(--muted);
+}
+.pj-scrollcue svg {
+	animation: pj-cue 1.8s ease-in-out infinite;
+}
+.pj-film-item {
+	flex: 0 0 auto;
+	height: 72vh;
+	margin: 0;
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-end;
+	gap: 14px;
+}
+.pj-film-frame {
+	height: 100%;
+	overflow: hidden;
+	background: var(--card);
+	position: relative;
+}
+.pj-film-frame img {
+	height: 100%;
+	width: auto;
+	display: block;
+	transform: scale(1.12);
+	will-change: transform;
+}
+.pj-cap {
+	display: flex;
+	justify-content: space-between;
+	align-items: baseline;
+	font-family: var(--font-mono);
+	font-size: 10px;
+	letter-spacing: 0.16em;
+	text-transform: uppercase;
+	color: var(--muted);
+}
+.pj-cap__title {
+	color: var(--fg);
+}
+
+/* ---------- responsive chrome ---------- */
+@media (max-width: 820px) {
+	.pj-controls {
+		display: none;
+	}
+	.pj-topbar {
+		display: flex;
+	}
+	.pj-backdrop {
+		display: block;
+	}
+	.pj-sidebar {
+		left: -340px;
+		transition: left 0.45s cubic-bezier(0.7, 0, 0.2, 1);
+		width: min(84vw, 320px);
+		background: var(--bg);
+		z-index: 140;
+		overflow-y: auto;
+		padding: 84px 32px 32px;
+	}
+	.pj-sidebar[data-open="true"] {
+		left: 0;
+		box-shadow: 30px 0 90px rgba(0, 0, 0, 0.55);
+	}
+	.pj-drawer-ctl {
+		display: flex;
+	}
+	.pj-main {
+		margin-left: 0;
+	}
+
+	.pj-film-sec {
+		height: 100svh;
+	}
+	.pj-film-scroll {
+		scroll-snap-type: x mandatory;
+	}
+	.pj-film-inner {
+		padding: 70px 0 26px;
+		gap: 0;
+	}
+	.pj-film-intro {
+		width: 100vw;
+		max-width: none;
+		padding: 0 30px;
+		min-height: 62svh;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		scroll-snap-align: center;
+	}
+	.pj-film-item {
+		width: 100vw;
+		height: auto;
+		padding: 0 22px;
+		justify-content: center;
+		scroll-snap-align: center;
+	}
+	.pj-film-frame {
+		height: auto;
+		max-height: 64svh;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background: transparent;
+	}
+	.pj-film-frame img {
+		width: auto;
+		height: auto;
+		max-width: 100%;
+		max-height: 64svh;
+		object-fit: contain;
+		transform: none;
+	}
+}
+
+/* respect reduced motion — JS also guards, this is the CSS safety net */
+@media (prefers-reduced-motion: reduce) {
+	.pj-scrollcue svg {
+		animation: none;
+	}
+	html,
+	.pj-film-scroll {
+		scroll-behavior: auto;
+	}
 }

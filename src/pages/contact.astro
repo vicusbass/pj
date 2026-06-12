@@ -1,0 +1,338 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+// TODO: replace with PJ's real address — used for the mailto link and the form.
+const contactEmail = 'hello@pjarts.com';
+---
+
+<Layout title="Contact — PJ Arts" description="Ia legătura cu PJ Arts — nunți, botezuri, nopți și portrete.">
+	<section class="pj-contact">
+		<div class="pj-contact__grid">
+			<!-- Left — the invitation -->
+			<div class="pj-contact__intro">
+				<div class="pj-kicker" style="--d: 0s; margin-bottom:24px;">Hai să vorbim</div>
+				<h1 class="pj-contact__display" style="--d: 0.08s">
+					Să creăm<br />ceva<br /><em>ce merită păstrat.</em>
+				</h1>
+				<p class="pj-contact__lede" style="--d: 0.16s">
+					O nuntă, un botez, ceața unei nopți lungi sau un singur portret menit
+					să dureze — spune-mi ce ai în minte și îți răspund în câteva zile.
+				</p>
+
+				<dl class="pj-contact__details" style="--d: 0.24s">
+					<div>
+						<dt>Email</dt>
+						<dd><a href={`mailto:${contactEmail}`}>{contactEmail}</a></dd>
+					</div>
+					<div>
+						<dt>Pe rețele</dt>
+						<dd class="pj-contact__elsewhere">
+							<a href="https://www.instagram.com/paulj_arts" target="_blank" rel="noopener">Instagram</a>
+							<span aria-hidden="true">/</span>
+							<a href="https://www.facebook.com/pauljph" target="_blank" rel="noopener">Facebook</a>
+						</dd>
+					</div>
+					<div>
+						<dt>Disponibilitate</dt>
+						<dd>Pe bază de programare — oriunde în lume</dd>
+					</div>
+				</dl>
+			</div>
+
+			<!-- Right — the form -->
+			<div class="pj-contact__formwrap" style="--d: 0.2s">
+				<form id="contact-form" data-email={contactEmail} novalidate>
+					<div class="pj-field">
+						<label for="name">Numele tău</label>
+						<input id="name" name="name" type="text" autocomplete="name" required />
+					</div>
+					<div class="pj-field">
+						<label for="email">Email</label>
+						<input id="email" name="email" type="email" autocomplete="email" required />
+					</div>
+					<div class="pj-field">
+						<label for="occasion">Ocazia <span>(opțional)</span></label>
+						<input id="occasion" name="occasion" type="text" placeholder="Nuntă, botez, petrecere, portret…" />
+					</div>
+					<div class="pj-field">
+						<label for="message">Câteva cuvinte</label>
+						<textarea id="message" name="message" rows="4" required></textarea>
+					</div>
+					<button type="submit" class="pj-send">
+						<span>Trimite mesajul</span>
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+							<path d="M5 12h14"></path>
+							<path d="m12 5 7 7-7 7"></path>
+						</svg>
+					</button>
+					<p class="pj-form-note" id="form-note" role="status" aria-live="polite"></p>
+				</form>
+			</div>
+		</div>
+	</section>
+
+	<style>
+		.pj-contact {
+			min-height: 100vh;
+			padding: 16vh 8vw 12vh 64px;
+		}
+		.pj-contact__grid {
+			display: grid;
+			gap: 56px;
+			align-items: start;
+			max-width: 1100px;
+		}
+		@media (min-width: 980px) {
+			.pj-contact__grid {
+				grid-template-columns: 1.1fr 1fr;
+				gap: 96px;
+			}
+		}
+		@media (max-width: 820px) {
+			.pj-contact {
+				padding: 14vh 26px 12vh;
+			}
+		}
+
+		/* orchestrated entrance */
+		.pj-contact__intro > *,
+		.pj-contact__formwrap {
+			opacity: 0;
+			animation: pj-rise 0.85s cubic-bezier(0.16, 0.84, 0.44, 1) forwards;
+			animation-delay: var(--d, 0s);
+		}
+		@keyframes pj-rise {
+			from {
+				opacity: 0;
+				transform: translateY(18px);
+			}
+			to {
+				opacity: 1;
+				transform: none;
+			}
+		}
+		@media (prefers-reduced-motion: reduce) {
+			.pj-contact__intro > *,
+			.pj-contact__formwrap {
+				animation: none;
+				opacity: 1;
+			}
+		}
+
+		.pj-contact__display {
+			margin: 0 0 1.8rem;
+			font-size: clamp(2.8rem, 6vw, 5rem);
+			font-weight: 600;
+			line-height: 0.96;
+			letter-spacing: -0.03em;
+			color: var(--fg);
+		}
+		.pj-contact__display em {
+			font-style: italic;
+			font-weight: 400;
+			color: var(--muted);
+		}
+		.pj-contact__lede {
+			max-width: 30rem;
+			margin: 0 0 3rem;
+			font-size: 1.02rem;
+			line-height: 1.7;
+			color: var(--muted);
+		}
+
+		.pj-contact__details {
+			display: flex;
+			flex-direction: column;
+			gap: 1.5rem;
+			margin: 0;
+		}
+		.pj-contact__details dt {
+			margin-bottom: 0.4rem;
+			font-family: var(--font-mono);
+			font-size: 0.62rem;
+			letter-spacing: 0.2em;
+			text-transform: uppercase;
+			color: var(--muted);
+		}
+		.pj-contact__details dd {
+			margin: 0;
+			font-size: 1rem;
+			color: var(--fg);
+		}
+		.pj-contact__details a {
+			position: relative;
+			color: var(--fg);
+			text-decoration: none;
+		}
+		.pj-contact__details a::after {
+			content: "";
+			position: absolute;
+			left: 0;
+			bottom: -2px;
+			width: 100%;
+			height: 1px;
+			background: var(--accent);
+			transform: scaleX(0);
+			transform-origin: left;
+			transition: transform 0.35s cubic-bezier(0.16, 0.84, 0.44, 1);
+		}
+		.pj-contact__details a:hover::after {
+			transform: scaleX(1);
+		}
+		.pj-contact__elsewhere {
+			display: flex;
+			align-items: center;
+			gap: 0.6rem;
+		}
+		.pj-contact__elsewhere span {
+			color: var(--muted);
+		}
+
+		/* form */
+		.pj-field {
+			margin-bottom: 2rem;
+		}
+		.pj-field label {
+			display: block;
+			margin-bottom: 0.6rem;
+			font-family: var(--font-mono);
+			font-size: 0.62rem;
+			letter-spacing: 0.2em;
+			text-transform: uppercase;
+			color: var(--muted);
+		}
+		.pj-field label span {
+			letter-spacing: 0;
+			text-transform: none;
+		}
+		.pj-field input,
+		.pj-field textarea {
+			width: 100%;
+			padding: 0.6rem 0;
+			border: 0;
+			border-bottom: 1px solid var(--line);
+			border-radius: 0;
+			background: transparent;
+			font: inherit;
+			font-size: 1rem;
+			color: var(--fg);
+			resize: none;
+			transition: border-color 0.3s ease;
+		}
+		.pj-field input::placeholder,
+		.pj-field textarea::placeholder {
+			color: var(--muted);
+		}
+		.pj-field input:focus,
+		.pj-field textarea:focus {
+			outline: none;
+			border-bottom-color: var(--accent);
+		}
+		.pj-field.invalid input,
+		.pj-field.invalid textarea {
+			border-bottom-color: var(--accent);
+		}
+
+		.pj-send {
+			display: inline-flex;
+			align-items: center;
+			gap: 0.7rem;
+			margin-top: 0.5rem;
+			padding: 0.95rem 1.6rem;
+			border: 0;
+			background: var(--fg);
+			color: var(--bg);
+			font-family: var(--font-mono);
+			font-size: 0.72rem;
+			letter-spacing: 0.16em;
+			text-transform: uppercase;
+			cursor: pointer;
+			transition:
+				background 0.3s ease,
+				color 0.3s ease,
+				gap 0.3s ease;
+		}
+		.pj-send:hover {
+			gap: 1.1rem;
+			background: var(--accent);
+			color: #fff;
+		}
+		.pj-send svg {
+			width: 16px;
+			height: 16px;
+		}
+
+		.pj-form-note {
+			min-height: 1.2em;
+			margin: 1.2rem 0 0;
+			font-size: 0.85rem;
+			color: var(--muted);
+		}
+		.pj-form-note.error {
+			color: var(--accent);
+		}
+	</style>
+
+	<script>
+		const form = document.getElementById('contact-form') as HTMLFormElement | null;
+		const note = document.getElementById('form-note');
+
+		const markInvalid = (id: string) => {
+			document.getElementById(id)?.closest('.pj-field')?.classList.add('invalid');
+		};
+
+		form?.addEventListener('submit', (event) => {
+			event.preventDefault();
+
+			form.querySelectorAll('.pj-field').forEach((f) => f.classList.remove('invalid'));
+			if (note) {
+				note.textContent = '';
+				note.classList.remove('error');
+			}
+
+			const data = new FormData(form);
+			const name = String(data.get('name') ?? '').trim();
+			const from = String(data.get('email') ?? '').trim();
+			const occasion = String(data.get('occasion') ?? '').trim();
+			const message = String(data.get('message') ?? '').trim();
+
+			let valid = true;
+			if (!name) {
+				markInvalid('name');
+				valid = false;
+			}
+			if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(from)) {
+				markInvalid('email');
+				valid = false;
+			}
+			if (!message) {
+				markInvalid('message');
+				valid = false;
+			}
+
+			if (!valid) {
+				if (note) {
+					note.textContent = 'Te rog completează câmpurile evidențiate.';
+					note.classList.add('error');
+				}
+				return;
+			}
+
+			const email = form.dataset.email ?? '';
+			const subject = occasion ? `Solicitare nouă — ${occasion}` : 'Solicitare nouă prin PJ Arts';
+			const body = [
+				`Nume: ${name}`,
+				`Email: ${from}`,
+				occasion ? `Ocazia: ${occasion}` : null,
+				'',
+				message,
+			]
+				.filter((line) => line !== null)
+				.join('\n');
+
+			window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+			if (note) note.textContent = 'Se deschide aplicația de email…';
+		});
+	</script>
+</Layout>

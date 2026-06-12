@@ -1,0 +1,124 @@
+---
+import { Image } from 'astro:assets';
+
+export interface FilmItem {
+	src: ImageMetadata;
+	alt: string;
+	title: string;
+	meta: string;
+}
+interface Props {
+	images: FilmItem[];
+}
+const { images } = Astro.props;
+---
+
+<section class="pj-film-sec">
+	<div class="pj-film-scroll pj-hidescroll" id="pj-film-scroll">
+		<div class="pj-film-inner">
+			<div class="pj-film-intro" data-film-intro>
+				<slot />
+			</div>
+
+			{
+				images.map((img) => (
+					<figure class="pj-film-item" data-film-item>
+						<div class="pj-film-frame" data-film-frame>
+							<Image
+								src={img.src}
+								alt={img.alt}
+								widths={[640, 960, 1280]}
+								sizes="(max-width: 820px) 92vw, 46vw"
+							/>
+						</div>
+						<figcaption class="pj-cap">
+							<span class="pj-cap__title">{img.title}</span>
+							<span>{img.meta}</span>
+						</figcaption>
+					</figure>
+				))
+			}
+		</div>
+	</div>
+</section>
+
+<script>
+	import { gsap } from 'gsap';
+
+	const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+	const introEl = document.querySelector<HTMLElement>('[data-film-intro]');
+	const items = Array.from(document.querySelectorAll<HTMLElement>('[data-film-item]'));
+
+	function showAll() {
+		const kids = introEl ? Array.from(introEl.children) : [];
+		[...kids, ...items].forEach((el) => {
+			const e = el as HTMLElement;
+			e.style.opacity = '1';
+			e.style.transform = 'none';
+			e.style.clipPath = 'none';
+		});
+	}
+
+	function buildReveal() {
+		const tl = gsap.timeline({ paused: true });
+		if (introEl) {
+			const kids = Array.from(introEl.children);
+			gsap.set(kids, { y: 26, opacity: 0 });
+			tl.to(kids, { y: 0, opacity: 1, duration: 0.9, stagger: 0.12, ease: 'power3.out' });
+		}
+		gsap.set(items, { y: 40, opacity: 0, clipPath: 'inset(0 0 100% 0)' });
+		tl.to(
+			items,
+			{ y: 0, opacity: 1, clipPath: 'inset(0 0 0% 0)', duration: 1.1, stagger: 0.13, ease: 'power3.out' },
+			introEl ? '-=0.55' : 0,
+		);
+		return tl;
+	}
+
+	function setupFilmParallax() {
+		const sc = document.getElementById('pj-film-scroll');
+		if (!sc || window.innerWidth <= 820) return;
+		const frames = Array.from(sc.querySelectorAll<HTMLElement>('[data-film-frame]'));
+		const handler = () => {
+			const cx = window.innerWidth / 2;
+			frames.forEach((f) => {
+				const img = f.querySelector('img');
+				if (!img) return;
+				const r = f.getBoundingClientRect();
+				const fc = r.left + r.width / 2;
+				const off = (fc - cx) / window.innerWidth;
+				img.style.transform = `scale(1.12) translateX(${(-off * 42).toFixed(1)}px)`;
+			});
+		};
+		sc.addEventListener('scroll', handler, { passive: true });
+		handler();
+		sc.addEventListener(
+			'wheel',
+			(e) => {
+				if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+				e.preventDefault();
+				sc.scrollLeft += e.deltaY * 5;
+			},
+			{ passive: false },
+		);
+	}
+
+	if (reduceMotion) {
+		showAll();
+	} else {
+		const tl = buildReveal();
+		let played = false;
+		const play = () => {
+			if (played) return;
+			played = true;
+			tl.play();
+		};
+		const w = window as typeof window & { __pj?: { introDone?: boolean } };
+		if (w.__pj?.introDone) play();
+		else {
+			document.addEventListener('pj:intro-done', play, { once: true });
+			setTimeout(play, 5200);
+		}
+		setupFilmParallax();
+	}
+</script>

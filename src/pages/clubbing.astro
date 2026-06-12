@@ -1,5 +1,4 @@
 ---
-import featured from '../assets/main/501760024_24047914748147228_8596347913612557712_n.jpg';
 import club1 from '../assets/main/club1.jpg';
 import club2 from '../assets/main/club2.jpg';
 import club4 from '../assets/main/club4.jpg';
@@ -7,47 +6,41 @@ import club5 from '../assets/main/club5.jpg';
 import Filmstrip from '../components/Filmstrip.astro';
 import Layout from '../layouts/Layout.astro';
 
-const tagline =
-	'Noțiunea noastră despre lumină poate rămâne necontaminată, însă asta nu poate garanta niciodată momentul gândirii viitoare — o realitate ce absoarbe cea mai imaginativă idee a culturii noastre.';
-
-const homeImages = [
-	{
-		src: featured,
-		alt: 'Primul dans în ceață',
-		title: 'Primul Dans',
-		meta: 'Nunți',
-	},
+const clubImages = [
 	{
 		src: club1,
 		alt: 'Mână ridicată în lumină verde',
 		title: 'Nimb',
-		meta: 'Club',
+		meta: '01',
 	},
 	{
 		src: club2,
 		alt: 'Mulțime într-o rază de lumină',
 		title: 'Rază',
-		meta: 'Club',
+		meta: '02',
 	},
 	{
 		src: club4,
 		alt: 'Siluetă pe ringul de dans',
 		title: 'Singuratica',
-		meta: 'Club',
+		meta: '03',
 	},
-	{
-		src: club5,
-		alt: 'Dans cu o sticlă ridicată',
-		title: 'Corona',
-		meta: 'Club',
-	},
+	{ src: club5, alt: 'Dans cu o sticlă ridicată', title: 'Corona', meta: '04' },
 ];
 ---
 
-<Layout title="PJ Arts — Fotografie">
-	<Filmstrip images={homeImages}>
-		<div class="pj-kicker">Lucrări selectate — 2025</div>
-		<p class="pj-tagline">{tagline}</p>
+<Layout
+	title="Club — PJ Arts"
+	description="PJ Arts — fotografie de club. Transpirație, stroboscop și fum, fotografiate la diafragmă deschisă."
+>
+	<Filmstrip images={clubImages}>
+		<div class="pj-kicker">04 Cadre · În Noapte</div>
+		<h1 class="pj-film-title">Club</h1>
+		<p class="pj-film-sub">
+			Transpirație, stroboscop și fum. Sala respirând ca un singur trup —
+			fotografiat la diafragmă deschisă, cu granulație păstrată și culoare lăsată
+			sinceră.
+		</p>
 		<div class="pj-scrollcue">
 			<span>Derulează</span>
 			<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">

@@ -1,19 +1,29 @@
 {
-  "name": "pjphoto",
-  "type": "module",
-  "version": "0.0.1",
-  "scripts": {
-    "dev": "astro dev",
-    "build": "astro build",
-    "preview": "astro preview",
-    "astro": "astro"
-  },
-  "dependencies": {
-    "@fontsource-variable/geist": "^5.2.6",
-    "@iconify-json/mdi": "^1.2.3",
-    "@tailwindcss/vite": "^4.1.11",
-    "astro": "^5.11.0",
-    "astro-icon": "^1.1.5",
-    "tailwindcss": "^4.1.11"
-  }
+	"name": "pjphoto",
+	"type": "module",
+	"version": "0.0.1",
+	"scripts": {
+		"dev": "astro dev",
+		"build": "astro build",
+		"preview": "astro preview",
+		"astro": "astro",
+		"format": "biome format --write .",
+		"lint": "biome lint .",
+		"check": "biome check --write ."
+	},
+	"dependencies": {
+		"@fontsource-variable/geist": "^5.2.6",
+		"@fontsource-variable/geist-mono": "^5.2.8",
+		"@iconify-json/mdi": "^1.2.3",
+		"@tailwindcss/vite": "^4.1.11",
+		"astro": "^6.4.6",
+		"astro-icon": "^1.1.5",
+		"gsap": "^3.15.0",
+		"tailwindcss": "^4.1.11",
+		"three": "^0.184.0"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.4.16",
+		"@types/three": "^0.184.1"
+	}
 }

@@ -1,62 +1,310 @@
 ---
 import '@fontsource-variable/geist';
+import '@fontsource-variable/geist-mono';
 import '../styles/global.css';
+import Logo from '../components/Logo.astro';
+import Sidebar from '../components/Sidebar.astro';
 
 export interface Props {
-	title: string;
+	title?: string;
+	description?: string;
 }
 
-const { title } = Astro.props;
+const {
+	title = 'PJ Arts — Fotografie',
+	description = 'PJ Arts — fotografie. Nunți, club, botez, artă.',
+} = Astro.props;
+
+const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+const isHome = path === '/';
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="ro">
 	<head>
 		<meta charset="UTF-8" />
-		<meta name="description" content="Photographer Portfolio" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="description" content={description} />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
+		<script is:inline>
+			// Set the theme before first paint to avoid a flash. Dark is the default.
+			(function () {
+				try {
+					document.documentElement.dataset.theme =
+						localStorage.getItem('pj-theme') || 'dark';
+				} catch (e) {
+					document.documentElement.dataset.theme = 'dark';
+				}
+			})();
+		</script>
 	</head>
-	<body class="bg-primary text-primary font-sans overflow-hidden"
-		  style="background-color: rgb(var(--color-background)); color: rgb(var(--color-text-primary));"
-	>
-		<slot />
+	<body>
+		{
+			isHome && (
+				<div class="pj-intro" id="pj-intro">
+					<Logo width={118} intro />
+					<div class="pj-intro__word">PJ&nbsp;Arts&nbsp;&middot;&nbsp;Fotografie</div>
+				</div>
+			)
+		}
+
+		<!-- three.js film-grain overlay -->
+		<canvas class="pj-grain" id="pj-grain"></canvas>
+
+		<!-- mobile top bar -->
+		<div class="pj-topbar">
+			<a href="/" class="pj-topbar__brand" aria-label="PJ Arts — acasă">
+				<Logo width={28} glitch />
+				<span>PJ Arts</span>
+			</a>
+			<button type="button" class="pj-burger" data-menu-open aria-label="Deschide meniul">
+				<span></span><span></span><span></span>
+			</button>
+		</div>
+
+		<!-- drawer backdrop -->
+		<div class="pj-backdrop" id="pj-backdrop"></div>
+
+		<!-- desktop controls -->
+		<div class="pj-controls">
+			<button type="button" class="pj-btn" data-theme-toggle aria-label="Toggle theme">
+				<span data-theme-label>Light</span>
+			</button>
+		</div>
+
+		<Sidebar />
+
+		<main class="pj-main">
+			<slot />
+		</main>
+
 		<script>
-			document.addEventListener('DOMContentLoaded', function() {
-				const menuToggle = document.getElementById('menu-toggle');
-				const menuClose = document.getElementById('menu-close');
-				const mobileMenu = document.getElementById('mobile-menu');
-				
-				function toggleMenu() {
-					if (mobileMenu) {
-						mobileMenu.classList.toggle('translate-x-0');
-						mobileMenu.classList.toggle('-translate-x-full');
+			import * as THREE from 'three';
+			import { gsap } from 'gsap';
+			import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+			gsap.registerPlugin(ScrollTrigger);
+
+			const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+			const w = window as typeof window & { __pj?: { introDone?: boolean } };
+			w.__pj = w.__pj || {};
+
+			function dispatchIntroDone() {
+				if (w.__pj!.introDone) return;
+				w.__pj!.introDone = true;
+				document.dispatchEvent(new Event('pj:intro-done'));
+			}
+
+			// ---------- theme ----------
+			const currentTheme = () => document.documentElement.dataset.theme || 'dark';
+			function syncThemeLabels() {
+				const label = currentTheme() === 'dark' ? 'Light' : 'Dark';
+				document.querySelectorAll('[data-theme-label]').forEach((el) => {
+					el.textContent = label;
+				});
+			}
+			function toggleTheme() {
+				const next = currentTheme() === 'dark' ? 'light' : 'dark';
+				document.documentElement.dataset.theme = next;
+				try {
+					localStorage.setItem('pj-theme', next);
+				} catch (e) {
+					/* ignore */
+				}
+				syncThemeLabels();
+			}
+			document
+				.querySelectorAll('[data-theme-toggle]')
+				.forEach((b) => b.addEventListener('click', toggleTheme));
+			syncThemeLabels();
+
+			// ---------- mobile drawer ----------
+			const sidebar = document.getElementById('pj-sidebar');
+			const backdrop = document.getElementById('pj-backdrop');
+			const setMenu = (open: boolean) => {
+				const v = open ? 'true' : 'false';
+				if (sidebar) sidebar.dataset.open = v;
+				if (backdrop) backdrop.dataset.open = v;
+			};
+			document
+				.querySelectorAll('[data-menu-open]')
+				.forEach((b) => b.addEventListener('click', () => setMenu(true)));
+			backdrop?.addEventListener('click', () => setMenu(false));
+			sidebar
+				?.querySelectorAll('.pj-nav a[href]')
+				.forEach((a) => a.addEventListener('click', () => setMenu(false)));
+
+			// ---------- three.js grain + flicker ----------
+			function initGrain() {
+				const cv = document.getElementById('pj-grain') as HTMLCanvasElement | null;
+				if (!cv) return;
+				let renderer: THREE.WebGLRenderer;
+				try {
+					renderer = new THREE.WebGLRenderer({ canvas: cv, alpha: true, antialias: false });
+				} catch (e) {
+					return; // no WebGL — page still works, just no grain
+				}
+				renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+				renderer.setSize(window.innerWidth, window.innerHeight);
+				const scene = new THREE.Scene();
+				const cam = new THREE.Camera();
+				const uniforms = {
+					uTime: { value: 0 },
+					uRes: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
+				};
+				const mat = new THREE.ShaderMaterial({
+					uniforms,
+					transparent: true,
+					vertexShader: 'void main(){ gl_Position = vec4(position.xy,0.0,1.0); }',
+					fragmentShader: `
+						precision highp float;
+						uniform float uTime; uniform vec2 uRes;
+						float hash(vec2 p){ p=fract(p*vec2(123.34,456.21)); p+=dot(p,p+45.32); return fract(p.x*p.y); }
+						void main(){
+							vec2 uv = gl_FragCoord.xy/uRes;
+							float t = floor(uTime*24.0);
+							float g = hash(gl_FragCoord.xy + vec2(t*1.7, t*0.9));
+							float grain = (g - 0.5);
+							vec2 c = uv - 0.5; c.x *= uRes.x/uRes.y;
+							float vig = smoothstep(1.05, 0.25, length(c));
+							float edge = 1.0 - vig;
+							float flick = 0.9 + 0.1*sin(uTime*6.2) + 0.06*hash(vec2(t,1.0));
+							float a = (0.16 + 0.16*edge) * flick;
+							gl_FragColor = vec4(vec3(0.5 + grain*0.85), a);
+						}`,
+				});
+				const mesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), mat);
+				scene.add(mesh);
+				let last = performance.now();
+				const loop = () => {
+					const now = performance.now();
+					uniforms.uTime.value += (now - last) / 1000;
+					last = now;
+					renderer.render(scene, cam);
+					requestAnimationFrame(loop);
+				};
+				loop();
+				window.addEventListener('resize', () => {
+					renderer.setSize(window.innerWidth, window.innerHeight);
+					uniforms.uRes.value.set(window.innerWidth, window.innerHeight);
+					ScrollTrigger.refresh();
+				});
+			}
+
+			// ---------- random RGB glitch on the on-site logo ----------
+			function startLogoGlitch() {
+				const FR = [
+					{ t: 'translate(-3px,1px) skewX(7deg)', f: 'drop-shadow(3px 0 0 rgba(255,0,64,.9)) drop-shadow(-3px 0 0 rgba(0,231,255,.85))', c: 'inset(8% 0 58% 0)', o: '0.9' },
+					{ t: 'translate(3px,-1px) skewX(-9deg)', f: 'drop-shadow(-4px 0 0 rgba(255,0,64,.9)) drop-shadow(4px 0 0 rgba(0,231,255,.85))', c: 'inset(52% 0 14% 0)', o: '1' },
+					{ t: 'translate(-2px,0) skewX(3deg)', f: 'drop-shadow(2px 0 0 rgba(255,0,64,.8)) drop-shadow(-2px 0 0 rgba(0,231,255,.7))', c: 'inset(28% 0 40% 0)', o: '0.8' },
+					{ t: 'translate(2px,1px)', f: 'drop-shadow(-2px 0 0 rgba(255,0,64,.75))', c: 'inset(0 0 72% 0)', o: '1' },
+					{ t: 'translate(-1px,-1px) skewX(-4deg)', f: 'drop-shadow(2px 0 0 rgba(0,231,255,.7))', c: 'inset(70% 0 0 0)', o: '0.92' },
+				];
+				const reset = (list: HTMLElement[]) =>
+					list.forEach((e) => {
+						e.style.transform = '';
+						e.style.filter = '';
+						e.style.clipPath = '';
+						e.style.opacity = '';
+					});
+				const burst = () => {
+					const list = Array.from(
+						document.querySelectorAll<HTMLElement>('[data-logo-glitch]'),
+					);
+					if (!list.length) return;
+					const n = 3 + Math.floor(Math.random() * 3);
+					let i = 0;
+					const step = () => {
+						if (i >= n) {
+							reset(list);
+							return;
+						}
+						const fr = FR[Math.floor(Math.random() * FR.length)];
+						i++;
+						list.forEach((e) => {
+							e.style.transform = fr.t;
+							e.style.filter = fr.f;
+							e.style.clipPath = fr.c;
+							e.style.opacity = fr.o;
+						});
+						setTimeout(step, 40 + Math.random() * 75);
+					};
+					step();
+				};
+				const schedule = () => {
+					setTimeout(
+						() => {
+							burst();
+							schedule();
+						},
+						2400 + Math.random() * 5200,
+					);
+				};
+				schedule();
+			}
+
+			// ---------- intro reveal ----------
+			function runIntro() {
+				const intro = document.getElementById('pj-intro');
+				let introed = false;
+				try {
+					introed = sessionStorage.getItem('pj-intro') === '1';
+				} catch (e) {
+					/* ignore */
+				}
+				if (!intro || introed || reduceMotion) {
+					if (intro) intro.style.display = 'none';
+					dispatchIntroDone();
+					return;
+				}
+				try {
+					sessionStorage.setItem('pj-intro', '1');
+				} catch (e) {
+					/* ignore */
+				}
+				const path = intro.querySelector('[data-intro-logo] path');
+				const word = intro.querySelector('.pj-intro__word');
+				const tl = gsap.timeline({
+					onComplete: () => {
+						intro.style.display = 'none';
+					},
+				});
+				if (path) {
+					let len = 4200;
+					try {
+						len = (path as SVGPathElement).getTotalLength();
+					} catch (e) {
+						/* ignore */
 					}
+					gsap.set(path, { strokeDasharray: len, strokeDashoffset: len, fillOpacity: 0 });
+					tl.to(path, { strokeDashoffset: 0, duration: 1.5, ease: 'power2.inOut' })
+						.to(path, { fillOpacity: 1, duration: 0.7, ease: 'power2.out' }, '-=0.35')
+						.to(path, { strokeWidth: 0, duration: 0.6 }, '-=0.7');
 				}
-				
-				if (menuToggle) {
-					menuToggle.addEventListener('click', toggleMenu);
+				tl.to(word, { opacity: 1, duration: 0.6 }, '-=0.6')
+					.to({}, { duration: 0.35 })
+					.add(() => dispatchIntroDone())
+					.to(intro, { autoAlpha: 0, duration: 0.9, ease: 'power2.inOut' }, '+=0.05');
+			}
+
+			// safety net: never leave the intro overlay stuck
+			setTimeout(() => {
+				const intro = document.getElementById('pj-intro');
+				if (intro && intro.style.display !== 'none' && getComputedStyle(intro).opacity !== '0') {
+					intro.style.transition = 'opacity .6s ease';
+					intro.style.opacity = '0';
+					setTimeout(() => {
+						intro.style.display = 'none';
+					}, 650);
 				}
-				
-				if (menuClose) {
-					menuClose.addEventListener('click', toggleMenu);
-				}
-			});
+				dispatchIntroDone();
+			}, 4500);
+
+			initGrain();
+			if (!reduceMotion) startLogoGlitch();
+			runIntro();
 		</script>
 	</body>
 </html>
-
-<style>
-	html {
-		font-family: system-ui, sans-serif;
-	}
-	
-	body {
-		margin: 0;
-		padding: 0;
-		height: 100vh;
-		width: 100vw;
-	}
-</style>
